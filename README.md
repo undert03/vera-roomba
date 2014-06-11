@@ -1,48 +1,53 @@
-vera-roomba
-===========
-
 Vera Roomba Plugin Version 1.4.1
+===========
 
 All orginal credit goes to 
 nitehawk http://forum.micasaverde.com/index.php?action=profile;u=21978
 revisions and patches made by: undertoe undertoe@chemlab.org
 
 
-Plugin Features:
+Plugin Features
+-----------
 
-Clean and Dock button.
-Roomba battery status.
-Roomba availability (ping).
-Username & Password Support
-True Device Status
+- Clean and Dock button.
+- Roomba battery status.
+- Roomba availability (ping).
+- Username & Password Support
+- Realtime Device Status
+- True Dock support
 
-Requirements:
+Requirements
+-----------
 
 Roomba with a Roowifi module (http://www.roomba-wifi-remote.com/).
 Roowifi configured to connect with your wireless network, not ad-hoc.
 
-Install 1.4 only:
+Installation
+-----------
 
-Extract Roombaplugin14.zip 
+- Extract your the Vera Roomba zip file
 
-Uploads contents of libs folder to: /usr/lib/lua (using WinSCP)
+- Uploads contents of libs folder to: /usr/lib/lua (using WinSCP)
 
-Navigate to apps --> develop apps --> Luup files in vera UI
+- Navigate to apps --> develop apps --> Luup files in vera UI
 Add all 4 files under the luup files folder you extracted from the zip
 check restart luup after upload
 
-Reload Vera
+- Reload Vera
 
-Create a new device (apps --> develop apps --> Create device), in the field "Upnp Device Filename" you enter D_Roomba1.xml, leave the rest empty and click Create Device
+- Create a new device (apps --> develop apps --> Create device), in the field "Upnp Device Filename" you enter D_Roomba1.xml, leave the rest empty and click Create Device
 
-Save and Reload Vera
+- Save and Reload Vera
 
-In the Advanced tab of the plugin you enter the 
-ip address of the Roowifi in the Address field
-if you have a password protected Roomba Wifi you can add your
-username and password in the 
-Username and Password field under advanced settings
-It defaults to the RooWifi default (admin / roombawifi)
-If you have no password make it blank
+Configuration
+-----------
+
+In the Advanced tab of the plugin
+
+Address : IP Address of your Roowifi
+Username: your Roowifi username (default: admin)
+Password: your Roowifi password (default: roombawifi)
+
+If you have no password make both the Username and Password field blank
 
 Save and Reload Vera (sometimes multiple reloads necessary)	
