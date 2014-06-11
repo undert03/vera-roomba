@@ -1,14 +1,14 @@
 {
-    "flashicon": "http://chemlab.org/res/roomba/Roomba.png",
+    "flashicon": "https://dl.dropboxusercontent.com/u/617004/Roomba/Roomba.png",
     "imgIconBody": "",
     "imgIconDimmable": "",
     "imgIconTurnable": "",
-    "imgIconMin": "http://chemlab.org/res/roomba/Roomba_0.png",
-    "imgIconMax": "http://chemlab.org/res/roomba/Roomba.png",
+    "imgIconMin": "https://dl.dropboxusercontent.com/u/617004/Roomba/Roomba_0.png",
+    "imgIconMax": "https://dl.dropboxusercontent.com/u/617004/Roomba/Roomba.png",
     "halloIconsDir": "pics/hallo",
     "state_icons": [
-        "http://chemlab.org/res/roomba/Roomba_0.png",
-        "http://chemlab.org/res/roomba/Roomba_100.png"
+        "Roomba_0.png",
+        "Roomba_100.png"
     ],
     "x": "2",
     "y": "4",

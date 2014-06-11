@@ -17,6 +17,8 @@
 	local BatteryStatus = 0
 	local OriginalPoll = 0
 	local PendingCMDaction = "Nothing"
+	local DEBUG = false
+	
 	local function log(text)
       local id = PARENT_DEVICE or "unknown"
       luup.log("Roomba Plugin #" .. id .. " " .. text)
@@ -25,7 +27,7 @@
 	local function InitRoombaSettings(address)
 	
 		-- Defaults
-      address = address or DEFAULT_ADDRESS
+    address = address or DEFAULT_ADDRESS
 	  
 	  luup.variable_set(ROOMBA_SID, "Address", address, parentDevice)
 	  luup.variable_set(ROOMBA_SID, "Target", "0", parentDevice)
@@ -34,7 +36,7 @@
 	  luup.variable_set(ROOMBA_SID, "Username", "admin", parentDevice)
 	  luup.variable_set(ROOMBA_SID, "Password", "roombawifi", parentDevice)
 	  
-	  log("InitRoombaSettings")
+	  if( DEBUG) then log("InitRoombaSettings") end
 	  
 	  log("Initialized variable: 'Address' = " .. address)
 	  log("Initialized variable: 'Target' = " .. Target)
@@ -49,7 +51,7 @@
 	end
 	
 	local function readRoombaSettings(parentDevice)
-		log("readRoombaSettings")
+		if( DEBUG) then log("readRoombaSettings") end
 		
 		local address = luup.variable_get(ROOMBA_SID, "Address", parentDevice)
 		local Poll = luup.variable_get(ROOMBA_SID, "Poll", parentDevice)
@@ -58,20 +60,17 @@
 		local RPassword = luup.variable_get(ROOMBA_SID, "Password", parentDevice)
 		
 		if (address == nil) then
-			-- log("InitRoombaSettings called - Address")
 			address = InitRoombaSettings(address)
 		end
 
 		if (RUsername == nil) then
-			log("null USERNAME")
+			if( DEBUG) then log("null USERNAME") end
 			addresspre = ""
 		else
 			addresspre = RUsername .. ":" .. RPassword .. "@"
-			-- log("Username Password Prefix set: " .. addresspre)
 		end
 		
 		if (Poll == nil) then
-			-- log("InitRoombaSettings called - Poll")
 			Poll = InitRoombaSettings(address)
 		end
 		
@@ -81,12 +80,11 @@
 	
 	function GetRoombaData()
 	
-		log("GetRoombaData")
+		if( DEBUG) then log("GetRoombaData") end
 		
 		local address, Poll, addresspre = readRoombaSettings(parentDevice)
 		local url = "http://".. addresspre .. address .."/roomba.json"
-		-- log("Fetch url: " .. "http://".. addresspre .. address .."/roomba.json" )
-
+		
 		local status, result = luup.inet.wget(url, 10)
 		if status == 0 then
 		 	local data = json.decode(result)
@@ -100,11 +98,11 @@
 		 	BatteryStatus = (Charge / Capacity) * 100
 	 	  luup.variable_set(HAD_SID, "BatteryLevel", BatteryStatus, parentDevice)
 		 	
-		 	log("Pending Action [" .. PendingCMDaction .. "] Org Poll: " .. OriginalPoll)
+		 	if( DEBUG) then log("Pending Action [" .. PendingCMDaction .. "] Org Poll: " .. OriginalPoll) end
 		 	
 		 	-- Get Current Status
 		 	if (CleaningStatus == "4" and CurrentValue > 200) then
-		 		log("Currently Cleaning : " .. CleaningStatus )
+		 		log("Currently Cleaning : [" .. CleaningStatus .. "]" )
 		 						
 				luup.variable_set(ROOMBA_SID, "Target", "1", parentDevice)
     		luup.variable_set(ROOMBA_SID, "Status", "1", parentDevice)
@@ -122,22 +120,22 @@
 		 	
 		 	
 	  end
-		log("GetRoombaData Delay Call " .. Poll)
+
 		luup.call_delay ("GetRoombaData", Poll, "")
 	end
 	
 	function RoombaUp()
-		log("RoombaUp")
+		if( DEBUG) then log("RoombaUp") end
 	
 		local address, Poll = readRoombaSettings(parentDevice)
 		pingcommand = "ping -c 1 " ..address
 		pingresponse = os.execute(pingcommand)
 		if (pingresponse == 0) then
 			luup.variable_set(ROOMBA_SID,"PingStatus","up",parentDevice)
-			log("Ping reply ")
+			if( DEBUG) then log("Ping reply ") end
 		else
 			luup.variable_set(ROOMBA_SID,"PingStatus","down",parentDevice)
-			log("No ping reply ")
+			if( DEBUG) then log("No ping reply ") end
 		end
 		PingInterval = luup.variable_get(ROOMBA_SID,"Poll", parentDevice)
 		luup.call_delay("RoombaUp", Poll, "")
@@ -149,10 +147,11 @@
       --
       PARENT_DEVICE = parentDevice
 
-      log("VERSION 1.4 starting up..")
-		
+      log("VERSION 1.4.1 starting up..")
+			if( DEBUG) then log("DEBUG : ENABLED!") end
+			
 	  luup.variable_set(HAD_SID, "LastUpdate", os.time(os.date('*t')), parentDevice)
-      luup.variable_set(HAD_SID, "Configured", "1", parentDevice)
+    luup.variable_set(HAD_SID, "Configured", "1", parentDevice)
 	  
       --
       -- Validate that the Address/Delay are configured in Vera, otherwise this
@@ -169,21 +168,20 @@
       
 	  	luup.call_delay ("GetRoombaData", 1, "")
 	  	luup.call_delay("RoombaUp", 1, "")
-	  	-- log("Main End Reached")
+
       return true
     end
 	
 	local function RoombaClean()
-		log("RoombaClean")
+		if( DEBUG) then log("RoombaClean") end
 		local address, Poll, addresspre = readRoombaSettings(parentDevice)
-		log("http://" .. addresspre .. address .. "/roomba.cgi?button=C" )
     luup.inet.wget("http://" .. addresspre .. address .. "/roomba.cgi?button=CLEAN")
 		luup.variable_set(ROOMBA_SID, "Target", "1", parentDevice)
     luup.variable_set(ROOMBA_SID, "Status", "1", parentDevice)
 	end	
 	
 	local function RoombaDock()
-		log("RoombaDock")
+		if( DEBUG) then log("RoombaDock") end
 
 		local address, Poll, addresspre = readRoombaSettings(parentDevice)
 		local settingsurl = "http://".. addresspre .. address .."/roomba.json"
@@ -195,17 +193,17 @@
 		 	local CurrentValue = data.response.r16.value
 		 	CurrentValue = CurrentValue * -1
 		 	if (CleaningStatus == "4") then
-		 		log("Currently Cleaning : [" .. CleaningStatus .."] Current[".. CurrentValue .."]" )
+		 		if( DEBUG) then log("Currently Cleaning : [" .. CleaningStatus .."] Current[".. CurrentValue .."]" ) end
 		 		if (CurrentValue > 200) then
 		 			log("Pausing cleaning")
 			 		-- Cleaning and moving so pause cleaning before sending the dock command for a quicker dock
 			 		luup.inet.wget("http://" .. addresspre .. address .. "/roomba.cgi?button=CLEAN" )
-			 		luup.sleep(5000)
+			 		luup.sleep(2500)
 		 		end
-		 		log("Issuing Dock command")
+		 		if( DEBUG) then log("Issuing Dock command") end
 		 		luup.inet.wget("http://" .. addresspre .. address .. "/roomba.cgi?button=DOCK" )
 		 	else
-		 		log("Not Cleaning : [" .. CleaningStatus .."] So i will just issue dock command" )
+		 		if( DEBUG) then log("Not Cleaning : [" .. CleaningStatus .."] So i will just issue dock command" ) end
 		 		luup.inet.wget("http://" .. addresspre .. address .. "/roomba.cgi?button=DOCK" )
 		 	end
 		 	
