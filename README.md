@@ -44,9 +44,9 @@ Configuration
 
 In the Advanced tab of the plugin
 
-Address : IP Address of your Roowifi
-Username: your Roowifi username (default: admin)
-Password: your Roowifi password (default: roombawifi)
+Address : -- `IP Address of your Roowifi`
+Username: -- `your Roowifi username (default: admin)`
+Password: -- `your Roowifi password (default: roombawifi)`
 
 If you have no password make both the Username and Password field blank
 
