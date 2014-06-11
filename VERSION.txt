@@ -1,0 +1,9 @@
+Revisions
+
+1.4.1 -	Added True Dock support (Meaning stops the cleaning and makes it return to dock)
+	Fixed so that the buttons actually show the current status of the device (Cleaning or Docked)
+	Changed ICONS, no longer needed to upload to vera (remote hosted)
+	
+1.4 - 	Inital spawn of nitehawk-nl code
+	Added username and password feature
+	Removed dependency for Datamine plugin (added json parsing library)
