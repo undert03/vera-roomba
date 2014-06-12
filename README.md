@@ -1,4 +1,4 @@
-Vera Roomba Plugin Version 1.4.1
+Vera Roomba Plugin Version 1.4.2
 ===========
 
 All orginal credit goes to 
@@ -9,12 +9,13 @@ revisions and patches made by: undertoe undertoe@chemlab.org
 Plugin Features
 -----------
 
-- Clean and Dock button.
-- Roomba battery status.
-- Roomba availability (ping).
+- Clean/Pause and Dock button
+- Roomba battery status
+- improved Roomba availability (ping)
 - Username & Password Support
-- Realtime Device Status
+- Realtime Device Status with UI label
 - True Dock support
+
 
 Requirements
 -----------
