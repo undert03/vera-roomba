@@ -115,10 +115,9 @@
 	 	  luup.variable_set(HAD_SID, "BatteryLevel", BatteryStatus, parentDevice)
 		 	
 		 	if( DEBUG) then log("Pending Action [" .. PendingCMDaction .. "] Org Poll: " .. OriginalPoll) end
-		 	log("Pending Action [" .. PendingCMDaction .. "] Org Poll: " .. OriginalPoll)
 		 	-- Get Current Status
 		 	if ( CleaningStatus == "4" ) then
-		 		log("Currently Cleaning : [" .. CleaningStatus .. "] Current: " .. CurrentValue )
+		 		if( DEBUG) then log("Currently Cleaning : [" .. CleaningStatus .. "] Current: " .. CurrentValue ) end
 		 		
 		 		if ( PendingCMDaction == "Dock" ) then
 		 			luup.variable_set(ROOMBA_SID, "CmdStatus", "Docking..", parentDevice)   		 			
