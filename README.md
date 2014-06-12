@@ -19,7 +19,7 @@ Plugin Features
 Requirements
 -----------
 
-Roomba with a Roowifi module (http://www.roomba-wifi-remote.com/).
+Roomba with a Roowifi module (http://www.roowifi.com/).
 Roowifi configured to connect with your wireless network, not ad-hoc.
 
 Installation

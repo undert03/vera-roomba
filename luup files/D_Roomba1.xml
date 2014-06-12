@@ -5,16 +5,16 @@
   <minor>1</minor>
  </specVersion>
  <device>
-  <deviceType>urn:schemas-nitehawk-nl:device:Roomba:1</deviceType>
+  <deviceType>urn:schemas-undertoe-us:device:Roomba:1</deviceType>
   <staticJson>D_Roomba1.json</staticJson>
   <friendlyName>RooWiFi Remote</friendlyName>
-  <manufacturer>Nitehawk</manufacturer>
+  <manufacturer>undertoe</manufacturer>
   <protocol>cr</protocol>
   <handleChildren>0</handleChildren>
  <serviceList>
  <service>
-  <serviceType>urn:schemas-nitehawk-nl:service:Roomba:1</serviceType>
-  <serviceId>urn:nitehawk-nl:serviceId:Roomba1</serviceId>
+  <serviceType>urn:schemas-undertoe-us:service:Roomba:1</serviceType>
+  <serviceId>urn:undertoe-us:serviceId:Roomba1</serviceId>
   <SCPDURL>S_Roomba1.xml</SCPDURL>
  </service>
  <service>

@@ -14,7 +14,7 @@
     "y": "4",
     "inScene": "1",
     "DisplayStatus": {
-        "Service": "urn:nitehawk-nl:serviceId:Roomba1",
+        "Service": "urn:undertoe-us:serviceId:Roomba1",
         "Variable": "Status",
         "MinValue": "0",
         "MaxValue": "1"
@@ -67,15 +67,15 @@
         },
 		{
           "id":"2",
-          "top": "-0.9",
-          "left": "-1.13",
+          "top": "1",
+          "left": "0",
           "x":"2",
           "y":"1"
         },
 		{
           "id":"3",
-          "top": "-0.4",
-          "left": "-1.13",
+          "top": "0",
+          "left": "0",
           "x":"2",
           "y":"1"
         }
@@ -83,7 +83,20 @@
 
       ],
       "Control": [
-		{
+			{
+				"ControlGroup": "3",	
+				"ControlType": "variable",
+				"Display": {
+					"Service": "urn:undertoe-us:serviceId:Roomba1",
+					"Variable": "CmdStatus",
+					"Top": 60,
+					"Left": 40,
+					"Width": 200,
+					"Height": 20
+			
+				}
+			},
+			{
           "ControlGroup":"2",
           "ControlType": "button",
           "top": "0",
@@ -93,7 +106,7 @@
             "text": "Clean"
           },
           "Display": {
-            "Service": "urn:nitehawk-nl:serviceId:Roomba1",
+            "Service": "urn:undertoe-us:serviceId:Roomba1",
             "Variable": "Status",
             "Value": "1",
             "Top": 20,
@@ -102,7 +115,7 @@
             "Height": 20
           },
           "Command": {
-            "Service": "urn:nitehawk-nl:serviceId:Roomba1",
+            "Service": "urn:undertoe-us:serviceId:Roomba1",
             "Action": "Clean",
             "Parameters": [
               {
@@ -112,8 +125,8 @@
             ]
           }
 		  
-        },
-        {
+			},
+      {
           "ControlGroup":"1",
           "ControlType": "button",
           "top": "0",
@@ -123,7 +136,7 @@
             "text": "Dock"
           },
           "Display": {
-            "Service": "urn:nitehawk-nl:serviceId:Roomba1",
+            "Service": "urn:undertoe-us:serviceId:Roomba1",
             "Variable": "Status",
             "Value": "0",
             "Top": 20,
@@ -132,7 +145,7 @@
             "Height": 20
           },
           "Command": {
-            "Service": "urn:nitehawk-nl:serviceId:Roomba1",
+            "Service": "urn:undertoe-us:serviceId:Roomba1",
             "Action": "Dock",
             "Parameters": [
               {
@@ -141,8 +154,7 @@
               }
             ]
           }
- 
-        }
+      }
       ]
     },
     {
@@ -170,26 +182,26 @@
     "group_1": {
       "cmd_1": {
         "label": "CLEAN",
-        "serviceId": "urn:nitehawk-nl:serviceId:Roomba1",
+        "serviceId": "urn:undertoe-us:serviceId:Roomba1",
         "action": "Clean",
         "arguments": {
           "newTargetValue": "1"
         },
         "display": {
-          "service": "urn:nitehawk-nl:serviceId:Roomba1",
+          "service": "urn:undertoe-us:serviceId:Roomba1",
           "variable": "Status",
           "value": "1"
         }
       },
       "cmd_2": {
         "label": "DOCK",
-        "serviceId": "urn:nitehawk-nl:serviceId:Roomba1",
+        "serviceId": "urn:undertoe-us:serviceId:Roomba1",
         "action": "Dock",
         "arguments": {
           "newTargetValue": "0"
         },
         "display": {
-          "service": "urn:nitehawk-nl:serviceId:Roomba1",
+          "service": "urn:undertoe-us:serviceId:Roomba1",
           "variable": "Status",
           "value": "0"
         }
@@ -203,7 +215,7 @@
                 "lang_tag": "a_device_is_turned_on_off",
                 "text": "A device is turned on or off"
             },
-      "serviceId": "urn:nitehawk-nl:serviceId:Roomba1",
+      "serviceId": "urn:undertoe-us:serviceId:Roomba1",
       "argumentList": [
         {
           "id": 1,
@@ -236,6 +248,6 @@
       ]
     }
   ],
-  "DeviceType": "urn:schemas-nitehawk-nl:device:Roomba:1"
+  "DeviceType": "urn:schemas-undertoe-us:device:Roomba:1"
 }
  

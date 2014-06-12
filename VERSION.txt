@@ -1,9 +1,13 @@
 Revisions
 
-1.4.1 -	Added True Dock support (Meaning stops the cleaning and makes it return to dock)
+1.4.2 - Testing -	Improved Ping device dection
+	Added Realtime Device Status (Cleaning, Pause, Charging, Docked)
+	Added Label for Current command / device status (Docking, Cleaning, Paused, Charging)
+
+1.4.1 - Stable -	Added True Dock support (Meaning stops the cleaning and makes it return to dock)
 	Fixed so that the buttons actually show the current status of the device (Cleaning or Docked)
 	Changed ICONS, no longer needed to upload to vera (remote hosted)
 	
-1.4 - 	Inital spawn of nitehawk-nl code
+1.4.0 - 	Inital spawn of nitehawk code
 	Added username and password feature
 	Removed dependency for Datamine plugin (added json parsing library)
