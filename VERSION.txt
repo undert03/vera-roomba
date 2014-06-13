@@ -3,6 +3,8 @@ Revisions
 1.4.2 -	Improved Ping device dection
 	Added Realtime Device Status (Cleaning, Pause, Charging, Docked)
 	Added Label for Current command / device status (Docking, Cleaning, Paused, Charging)
+	Almost a complete rewrite of code for status checking and function calls
+	Optimized poll interval for post command checking status for shorter time
 
 1.4.1 - Stable -	Added True Dock support (Meaning stops the cleaning and makes it return to dock)
 	Fixed so that the buttons actually show the current status of the device (Cleaning or Docked)
