@@ -13,7 +13,7 @@
   local ROOMBA_SID = "urn:undertoe-us:serviceId:Roomba1"
   local HAD_SID = "urn:micasaverde-com:serviceId:HaDevice1"	
 	local DEFAULT_ADDRESS = "Enter IP of Roowifi"
-	json = require("json-rw")
+	local json = require("json-rw")
 	local BatteryStatus = 0
 	local OriginalPoll = 0
 	local QuickPoll = 10
@@ -40,9 +40,7 @@
 	  luup.variable_set(ROOMBA_SID, "Username", "admin", parentDevice)
 	  luup.variable_set(ROOMBA_SID, "Password", "roombawifi", parentDevice)
 	  luup.variable_set(ROOMBA_SID, "CmdStatus", "Device Setup", parentDevice)
-	  
-	  if( DEBUG) then log("InitRoombaSettings") end
-	  
+	  	  
 	  log("Initialized variable: 'Address' = " .. address)
 	  log("Initialized variable: 'Target' = " .. Target)
 	  log("Initialized variable: 'Status' = " .. Status)
@@ -100,14 +98,13 @@
 		end
 
 		if (RUsername == nil) then
-			if( DEBUG) then log("null USERNAME") end
 			addresspre = ""
 		else
 			addresspre = RUsername .. ":" .. RPassword .. "@"
 		end
 		
 		if (Poll == nil) then
-			Poll = InitRoombaSettings(address)
+			InitRoombaSettings(address)
 			Poll = "120"
 		end
 
@@ -115,8 +112,7 @@
 			InitRoombaSettings(address)
 		end
 		
-		return address, Poll, addresspre
-		
+		return address, Poll, addresspre	
 	end
 
 	local function RoombaUpdateBatteryLevel()
@@ -164,7 +160,7 @@
 		 	local CurrentValue = (data.response.r16.value * -1)
 		 	local CliffSensor = (data.response.r4.value + data.response.r5.value)
 		 	
-		 	if( DEBUG) then log(" == Current: " .. CurrentValue .. " | Charge Status: " .. ChargeStatus .. " | Cliff : " .. CliffSensor) end
+		 	if(DEBUG) then log(" == Current: " .. CurrentValue .. " | Charge Status: " .. ChargeStatus .. " | Cliff : " .. CliffSensor) end
 		 	
 		 	if ( CliffSensor >= 2) then
 		 		-- Robot is docked
@@ -267,7 +263,7 @@
 		
 		local RtnStatus = false
 		local address, Poll = readRoombaSettings(parentDevice)
-		pingcommand = "ping -c 1 " ..address
+		pingcommand = "ping -c 1 " .. address
 		pingresponse = os.execute(pingcommand)
 		if (pingresponse == 0) then
 			
@@ -281,7 +277,7 @@
 		else
 			luup.variable_set(ROOMBA_SID,"PingStatus","down",parentDevice)
 			luup.variable_set(ROOMBA_SID, "CmdStatus", "Check IP", parentDevice)
-			if( DEBUG) then log("No ping reply ") end
+			log("No ping reply : " .. address )
 			RtnStatus = false
 		end
 		
@@ -340,9 +336,10 @@
 	  
     local address = readRoombaSettings(parentDevice)
 	  local Poll = readRoombaSettings(parentDevice)
-    if (address == nil) then
+    if ( (address == nil) or (address == DEFAULT_ADDRESS) ) then
       if( DEBUG) then log("could not be started.") end
       luup.set_failure(true, parentDevice)
+      luup.variable_set(ROOMBA_SID, "CmdStatus", "Set your IP", parentDevice)
       return false
     end
       

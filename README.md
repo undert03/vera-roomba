@@ -23,10 +23,15 @@ Requirements
 Roomba with a Roowifi module (http://www.roowifi.com/).
 Roowifi configured to connect with your wireless network, not ad-hoc.
 
-Installation
+Installation - Vera App Market Place
 -----------
 
-- Extract your the Vera Roomba zip file
+- Install from Market Place then follow the configuration instructions
+
+Installation - Manual from GitHub
+-----------
+
+- Extract your the Vera Roomba zip file you downloaded from 
 
 - Uploads contents of libs folder to: /usr/lib/lua (using WinSCP)
 
@@ -51,4 +56,4 @@ Password: your Roowifi password (default: roombawifi)
 
 If you have no password make both the Username and Password field blank
 
-Save and Reload Vera (sometimes multiple reloads necessary)	
+Save and Reload Vera (sometimes multiple reloads necessary)	typically twice for status messages to clean and sync
