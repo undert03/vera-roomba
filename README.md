@@ -58,3 +58,10 @@ Password: your Roowifi password (default: roombawifi)
 If you have no password make both the Username and Password field blank
 
 Save and Reload Vera (sometimes multiple reloads necessary)	typically twice for status messages to clean and sync
+
+Screenshots
+-----------
+
+![Roomba RooWifi Vera Plugin - Different States](https://dl.dropboxusercontent.com/u/617004/Roomba/Screenshot-2.jpg "Roomba RooWifi Vera Plugin - Different States")
+
+![Roomba RooWifi Vera Plugin - Advance Tab](https://dl.dropboxusercontent.com/u/617004/Roomba/Screenshot-1.jpg "Roomba RooWifi Vera Plugin - Advance Tab")
