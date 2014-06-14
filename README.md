@@ -1,6 +1,6 @@
 Vera Roomba Plugin Version 1.4.2
 ===========
-![Roomba RooWifi Vera Plugin](https://dl.dropboxusercontent.com/u/617004/Roomba/APPICON.png "Roomba RooWifi Vera Plugin")
+![Roomba RooWifi Vera Plugin](https://dl.dropboxusercontent.com/u/617004/Roomba/APPICON_LG.png "Roomba RooWifi Vera Plugin")
 
 All orginal credit goes to 
 nitehawk http://forum.micasaverde.com/index.php?action=profile;u=21978
