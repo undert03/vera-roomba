@@ -21,6 +21,7 @@
 	local HTTPtimeout = 5
 	local PollLongRunning = false
 	local PollShortRunning = false
+	local Task_Handle = -1
 	local DEBUG = false
 	
 	local function log(text)
@@ -137,13 +138,16 @@
 	end
 	
 	local function RoombaRobotStatus()
+		Task_Handle = luup.task("Roomba1", 4, "Roomba", Task_Handle)
 		if(DEBUG) then log("========= RoombaRobotStatus ===========") end
 		local address, Poll, addresspre = readRoombaSettings(parentDevice)
 		
 		local MotionStatus = ""
 		local StatusBox = ""
 		local Docked = false
-		
+		local StatusLevel = 0
+		local TargetLevel = 0
+
 		local PingStatus = luup.variable_get(ROOMBA_SID, "PingStatus", parentDevice)
 		if ( RoombaPingStatus() ) then
 			log("Can not connect: " .. address .. " Will try again in " .. Poll .. " seconds")
@@ -166,13 +170,23 @@
 		 		-- Robot is docked
 		 		MotionStatus = "Dock"
 		 		Docked = true
+				StatusLevel = 0
+				TargetLevel = 0
 		 		if ( ChargeStatus == "1" ) then 
-		 			StatusBox = "Charging??" 
+		 			StatusBox = "Charging??"
+		 			TargetLevel = -75
+		 			StatusLevel = -75
 		 		elseif ( ChargeStatus == "2" ) then
 		 			StatusBox = "Charging"
+		 			TargetLevel = 0
+		 			StatusLevel = 0
 		 		elseif ( ChargeStatus == "3" ) then
 		 			StatusBox = "Trickle Charge"
+		 			TargetLevel = -50
+		 			StatusLevel = -50
 		 		elseif ( ChargeStatus == "4" ) then
+		 			TargetLevel = 0
+		 			StatusLevel = -25
 		 			StatusBox = "Docked"
 		 		else
 		 			StatusBox = "NA [" .. ChargeStatus .."]"
@@ -180,18 +194,28 @@
 		 	elseif ( CurrentValue > 200 ) then
 		 		Docked = false
 		 		MotionStatus = "Clean"
+				StatusLevel = 100
+				TargetLevel = 100
 		 		StatusBox = "Cleaning"
 		 		if ( PendingCMDaction == "Dock") then
 		 			StatusBox = "Docking.."
+					StatusLevel = 50
+					TargetLevel = 100
 		 		end
 		 	else
 		 		Docked = false
 		 		MotionStatus = "Pause"
 		 		StatusBox = "Paused"
+				StatusLevel = 125
+				TargetLevel = 100
 		 		if ( PendingCMDaction == "Dock") then
 		 			StatusBox = "Docking.."
+					StatusLevel = 50
+					TargetLevel = 100
 		 		elseif ( PendingCMDaction == "Clean") then
 		 			StatusBox = "Undocking"
+					StatusLevel = 25
+					TargetLevel = 100
 		 		end
 		 	end
 
@@ -203,7 +227,7 @@
 		 		if( DEBUG) then log(" === > PENDING CMD NO GOOD [".. MotionStatus .." != ".. PendingCMDaction .."]") end
 		 	end		 	
 		 	
-		 	return Docked, MotionStatus, StatusBox
+		 	return Docked, MotionStatus, StatusBox, TargetLevel, StatusLevel
 		else
 			log("JSON URL fetch error: " .. JSONurl)
 			return false
@@ -221,16 +245,12 @@
 			return true
 		end
 
-		local Docked, MotionStatus, StatusTxt = RoombaRobotStatus()
+		local Docked, MotionStatus, StatusTxt, TargetLevel, StatusLevel = RoombaRobotStatus()
 		luup.variable_set(ROOMBA_SID, "CmdStatus", StatusTxt, parentDevice)
 		
-		if( Docked ) then 
-			luup.variable_set(ROOMBA_SID, "Target", "0", parentDevice)
-      luup.variable_set(ROOMBA_SID, "Status", "0", parentDevice)
-		else
-			luup.variable_set(ROOMBA_SID, "Target", "1", parentDevice)
-      luup.variable_set(ROOMBA_SID, "Status", "1", parentDevice)
-		end
+		luup.variable_set(ROOMBA_SID, "LoadlevelTarget", TargetLevel, parentDevice)
+    luup.variable_set(ROOMBA_SID, "LoadLevelStatus", StatusLevel, parentDevice)
+    
 		RoombaUpdateBatteryLevel()
 		luup.call_delay ("GetRoombaData", tonumber(Poll), "")
 	end
@@ -244,16 +264,12 @@
 		end
 		
 		PollLongRunning = true
-		local Docked, MotionStatus, StatusTxt = RoombaRobotStatus()
+		local Docked, MotionStatus, StatusTxt, TargetLevel, StatusLevel = RoombaRobotStatus()
 		luup.variable_set(ROOMBA_SID, "CmdStatus", StatusTxt, parentDevice)
 		
-		if( Docked ) then 
-			luup.variable_set(ROOMBA_SID, "Target", "0", parentDevice)
-      luup.variable_set(ROOMBA_SID, "Status", "0", parentDevice)
-		else
-			luup.variable_set(ROOMBA_SID, "Target", "1", parentDevice)
-      luup.variable_set(ROOMBA_SID, "Status", "1", parentDevice)
-		end
+		luup.variable_set(ROOMBA_SID, "LoadlevelTarget", TargetLevel, parentDevice)
+    luup.variable_set(ROOMBA_SID, "LoadLevelStatus", StatusLevel, parentDevice)
+    
 		RoombaUpdateBatteryLevel()
 		luup.call_delay ("GetRoombaDataShort", tonumber(Poll), "")
 	end
@@ -347,7 +363,8 @@
       
 	 	luup.call_delay ("GetRoombaData", 1, "")
 	  luup.call_delay("RoombaUp", 1, "")
-
+		
+		-- taskHandle = luup.task(text, (mode == TASK_ERROR_PERM) and TASK_ERROR or mode, MSG_CLASS, taskHandle)		
     return true
   end
 

@@ -14,6 +14,7 @@ Plugin Features
 - Roomba availability (ping).
 - Username & Password Support
 - Realtime Device Status (Cleaning, Pause, Charging, Docked)
+- Multiple Icons for all different levels of status
 - True Dock support
 
 Requirements
@@ -26,6 +27,8 @@ Installation
 -----------
 
 - Extract your the Vera Roomba zip file
+
+- Uploads contents of icons folder to: /www/cmh/skins/default/icons (using WinSCP)
 
 - Uploads contents of libs folder to: /usr/lib/lua (using WinSCP)
 

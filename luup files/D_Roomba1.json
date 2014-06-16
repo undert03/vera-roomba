@@ -1,23 +1,29 @@
 {
-    "flashicon": "https://dl.dropboxusercontent.com/u/617004/Roomba/Roomba.png",
-    "imgIconBody": "",
-    "imgIconDimmable": "",
+    "flashicon": "icons/Roomba.png",
     "imgIconTurnable": "",
-    "imgIconMin": "https://dl.dropboxusercontent.com/u/617004/Roomba/Roomba_0.png",
-    "imgIconMax": "https://dl.dropboxusercontent.com/u/617004/Roomba/Roomba.png",
+    "imgIconMin": "icons/Roomba_0.png",
+    "imgIconMax": "icons/Roomba_100.png",
     "halloIconsDir": "pics/hallo",
-    "state_icons": [
+    "state_icons":[
+    		"Roomba_-75.png",
+    		"Roomba_-50.png",
+    		"Roomba_-25.png",
         "Roomba_0.png",
-        "Roomba_100.png"
+        "Roomba_25.png",
+        "Roomba_50.png",
+        "Roomba_75.png",
+        "Roomba_100.png",
+        "Roomba_125.png"
     ],
     "x": "2",
     "y": "4",
+    "iconText": "0",
     "inScene": "1",
     "DisplayStatus": {
         "Service": "urn:undertoe-us:serviceId:Roomba1",
-        "Variable": "Status",
+        "Variable": "LoadLevelStatus",
         "MinValue": "0",
-        "MaxValue": "1"
+        "MaxValue": "100"
     },
   "doc_url": {
         "doc_language": 1,
@@ -89,8 +95,8 @@
 				"Display": {
 					"Service": "urn:undertoe-us:serviceId:Roomba1",
 					"Variable": "CmdStatus",
-					"Top": 60,
-					"Left": 40,
+					"Top": 20,
+					"Left": 60,
 					"Width": 200,
 					"Height": 20
 			
@@ -107,9 +113,9 @@
           },
           "Display": {
             "Service": "urn:undertoe-us:serviceId:Roomba1",
-            "Variable": "Status",
-            "Value": "1",
-            "Top": 20,
+            "Variable": "LoadLevelStatus",
+            "Value": "100",
+            "Top": 40,
             "Left": 150,
             "Width": 75,
             "Height": 20
@@ -119,8 +125,8 @@
             "Action": "Clean",
             "Parameters": [
               {
-                "Name": "newTargetValue",
-                "Value": "1"
+                "Name": "newLoadlevelTarget",
+                "Value": "100"
               }
             ]
           }
@@ -137,9 +143,9 @@
           },
           "Display": {
             "Service": "urn:undertoe-us:serviceId:Roomba1",
-            "Variable": "Status",
+            "Variable": "LoadLevelStatus",
             "Value": "0",
-            "Top": 20,
+            "Top": 40,
             "Left": 50,
             "Width": 75,
             "Height": 20
@@ -149,7 +155,7 @@
             "Action": "Dock",
             "Parameters": [
               {
-                "Name": "newTargetValue",
+                "Name": "newLoadlevelTarget",
                 "Value": "0"
               }
             ]
@@ -185,12 +191,12 @@
         "serviceId": "urn:undertoe-us:serviceId:Roomba1",
         "action": "Clean",
         "arguments": {
-          "newTargetValue": "1"
+          "newLoadlevelTarget": "100"
         },
         "display": {
           "service": "urn:undertoe-us:serviceId:Roomba1",
-          "variable": "Status",
-          "value": "1"
+          "variable": "LoadLevelStatus",
+          "value": "100"
         }
       },
       "cmd_2": {
@@ -198,11 +204,11 @@
         "serviceId": "urn:undertoe-us:serviceId:Roomba1",
         "action": "Dock",
         "arguments": {
-          "newTargetValue": "0"
+          "newLoadlevelTarget": "0"
         },
         "display": {
           "service": "urn:undertoe-us:serviceId:Roomba1",
-          "variable": "Status",
+          "variable": "LoadLevelStatus",
           "value": "0"
         }
       }
