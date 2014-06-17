@@ -2,9 +2,8 @@ Vera Roomba Plugin Version 1.4.2
 ===========
 ![Roomba RooWifi Vera Plugin](https://dl.dropboxusercontent.com/u/617004/Roomba/APPICON_LG.png "Roomba RooWifi Vera Plugin")
 
-All orginal credit goes to 
-nitehawk http://forum.micasaverde.com/index.php?action=profile;u=21978
-revisions and patches made by: undertoe undertoe@chemlab.org
+Plugin Programmed by undertoe@chemlab.org
+Concept based on nitehawk
 
 
 Plugin Features
@@ -29,6 +28,8 @@ Installation - Vera App Market Place
 -----------
 
 - Install from Market Place then follow the configuration instructions
+
+http://apps.mios.com/plugin.php?id=6756
 
 Installation - Manual from GitHub
 -----------

@@ -1,9 +1,8 @@
 Vera Roomba Plugin Version 1.4.2
 ===========
 
-All orginal credit goes to 
-nitehawk http://forum.micasaverde.com/index.php?action=profile;u=21978
-revisions and patches made by: undertoe undertoe@chemlab.org
+Plugin Programmed by undertoe@chemlab.org
+Concept based on nitehawk
 
 
 Plugin Features
