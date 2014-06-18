@@ -41,12 +41,14 @@
 	  luup.variable_set(ROOMBA_SID, "Username", "admin", parentDevice)
 	  luup.variable_set(ROOMBA_SID, "Password", "roombawifi", parentDevice)
 	  luup.variable_set(ROOMBA_SID, "CmdStatus", "Device Setup", parentDevice)
+	  luup.variable_set(ROOMBA_SID, "SimpleStatus", "", parentDevice)
 	  	  
 	  log("Initialized variable: 'Address' = " .. address)
 	  log("Initialized variable: 'Target' = " .. Target)
 	  log("Initialized variable: 'Status' = " .. Status)
 	  log("Initialized variable: 'Poll' = " .. Poll)
 	  log("Initialized variable: 'Username and Password' = " .. Username)
+	  log("Initialized variable: 'SimpleStatus'")
 	  
 	  luup.task("Please restart Luup to initialize the plugin.", 1, "Roomba Plugin", -1)
 	  
@@ -93,6 +95,7 @@
 		local RUsername = luup.variable_get(ROOMBA_SID, "Username", parentDevice)
 		local RPassword = luup.variable_get(ROOMBA_SID, "Password", parentDevice)
 		local CmdStatus = luup.variable_get(ROOMBA_SID, "CmdStatus", parentDevice)
+		local SimpleStatus = luup.variable_get(ROOMBA_SID, "SimpleStatus", parentDevice)
 		
 		if (address == nil) then
 			address = InitRoombaSettings(address)
@@ -102,6 +105,10 @@
 			addresspre = ""
 		else
 			addresspre = RUsername .. ":" .. RPassword .. "@"
+		end
+		
+		if ( SimpleStatus == nil) then
+			InitRoombaSettings(address)
 		end
 		
 		if (Poll == nil) then
@@ -147,7 +154,10 @@
 		local Docked = false
 		local StatusLevel = 0
 		local TargetLevel = 0
-
+		local SimpleStatusTxt = ""
+		
+		local PrevSimpStatus = luup.variable_get(ROOMBA_SID, "SimpleStatus", parentDevice)
+		
 		local PingStatus = luup.variable_get(ROOMBA_SID, "PingStatus", parentDevice)
 		if ( RoombaPingStatus() ) then
 			log("Can not connect: " .. address .. " Will try again in " .. Poll .. " seconds")
@@ -169,6 +179,7 @@
 		 	if ( CliffSensor >= 2) then
 		 		-- Robot is docked
 		 		MotionStatus = "Dock"
+		 		SimpleStatusTxt = "Docked"
 		 		Docked = true
 				StatusLevel = 0
 				TargetLevel = 0
@@ -176,14 +187,17 @@
 		 			StatusBox = "Charging??"
 		 			TargetLevel = -75
 		 			StatusLevel = -75
+		 			SimpleStatusTxt = "Charging Error"
 		 		elseif ( ChargeStatus == "2" ) then
 		 			StatusBox = "Charging"
 		 			TargetLevel = 0
 		 			StatusLevel = 0
+		 			SimpleStatusTxt = "Charging"
 		 		elseif ( ChargeStatus == "3" ) then
 		 			StatusBox = "Trickle Charge"
 		 			TargetLevel = -50
 		 			StatusLevel = -50
+		 			SimpleStatusTxt = "Charging"
 		 		elseif ( ChargeStatus == "4" ) then
 		 			TargetLevel = 0
 		 			StatusLevel = -25
@@ -194,6 +208,7 @@
 		 	elseif ( CurrentValue > 200 ) then
 		 		Docked = false
 		 		MotionStatus = "Clean"
+		 		SimpleStatusTxt = "Cleaning"
 				StatusLevel = 100
 				TargetLevel = 100
 		 		StatusBox = "Cleaning"
@@ -212,13 +227,18 @@
 		 			StatusBox = "Docking.."
 					StatusLevel = 50
 					TargetLevel = 100
-		 		elseif ( PendingCMDaction == "Clean") then
+		 		elseif ( (PendingCMDaction == "Clean") and ( (PrevSimpStatus == "Docked") or (PrevSimpStatus == "Charging") ) ) then
 		 			StatusBox = "Undocking"
 					StatusLevel = 25
 					TargetLevel = 100
+				else
+					SimpleStatusTxt = "Paused"
 		 		end
 		 	end
-
+			
+			-- Set Simple Status
+			luup.variable_set(ROOMBA_SID, "SimpleStatus", SimpleStatusTxt, parentDevice)
+			
 			-- Handle Pending Commands
 		 	if ( PendingCMDaction == MotionStatus) then
 		 		if( DEBUG) then log("=== > PENDING CMD ACHIVED! ".. PendingCMDaction .. " Back to Normal Poll: " .. OriginalPoll ) end
@@ -337,7 +357,7 @@
 		luup.inet.wget("http://" .. addresspre .. address .. "/roomba.cgi?button=DOCK", HTTPtimeout )
 
 		PendingCMDaction = "Dock"
-		luup.variable_set(ROOMBA_SID, "CmdStatus", "Docking", parentDevice)
+		-- luup.variable_set(ROOMBA_SID, "CmdStatus", "Docking", parentDevice)
 		RoombaShortPoll()
 	end
 

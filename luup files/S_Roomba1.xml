@@ -79,6 +79,16 @@
       <defaultValue>0</defaultValue>
       <shortCode>status</shortCode>
     </stateVariable>
+    <stateVariable sendEvents="yes">
+      <name>SimpleStatus</name>
+      <dataType>string</dataType>
+      <shortCode>simplestatus</shortCode>
+    </stateVariable>
+    <stateVariable sendEvents="yes">
+      <name>PingStatus</name>
+      <dataType>string</dataType>
+      <shortCode>pingstatus</shortCode>
+    </stateVariable>
 	<stateVariable>
        <sendEventsAttribute>no</sendEventsAttribute>
        <name>Address</name>

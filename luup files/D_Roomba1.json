@@ -216,34 +216,84 @@
   },
   "eventList2": [
     {
-      "id": 1,
+      "id": 2,
       "label": {
-                "lang_tag": "a_device_is_turned_on_off",
-                "text": "A device is turned on or off"
+                "lang_tag": "roomba_status",
+                "text": "The Roomba's status is"
             },
       "serviceId": "urn:undertoe-us:serviceId:Roomba1",
       "argumentList": [
         {
-          "id": 1,
-          "dataType": "boolean",
-          "defaultValue": "1",
+          "id": 2,
+          "dataType": "string",
           "allowedValueList": [
                         {
-                            "Off": "0",
+                            "Cleaning": "Cleaning",
                             "HumanFriendlyText": {
-                                "lang_tag": "hft_device_turned_off",
-                                "text": "_DEVICE_NAME_ is turned off"
+                                "lang_tag": "roomba_cleaning",
+                                "text": "_DEVICE_NAME_ is cleaning"
                             }
                         },
                         {
-                            "On": "1",
+                            "Docking": "Docked",
                             "HumanFriendlyText": {
-                                "lang_tag": "hft_device_turned_on",
-                                "text": "_DEVICE_NAME_ is turned on"
+                                "lang_tag": "roomba_docked",
+                                "text": "_DEVICE_NAME_ is docked"
+                            }
+                        },
+                        {
+                            "Charging": "Charging",
+                            "HumanFriendlyText": {
+                                "lang_tag": "roomba_charging",
+                                "text": "_DEVICE_NAME_ is charging"
+                            }
+                        },
+                        {
+                            "Paused": "Paused",
+                            "HumanFriendlyText": {
+                                "lang_tag": "roomba_paused",
+                                "text": "_DEVICE_NAME_ is paused"
                             }
                         }
           ],
-          "name": "Status",
+          "name": "SimpleStatus",
+          "comparisson": "=",
+          "prefix": {
+                        "lang_tag": "which_mode",
+                        "text": "Which mode"
+                    },
+          "suffix": {}
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "label": {
+                "lang_tag": "roomba_ping_status",
+                "text": "The Roomba's Ping Status"
+            },
+      "serviceId": "urn:undertoe-us:serviceId:Roomba1",
+      "argumentList": [
+        {
+          "id": 3,
+          "dataType": "string",
+          "allowedValueList": [
+                        {
+                            "Online": "up",
+                            "HumanFriendlyText": {
+                                "lang_tag": "roomba_online",
+                                "text": "_DEVICE_NAME_ is online"
+                            }
+                        },
+                        {
+                            "Offline": "down",
+                            "HumanFriendlyText": {
+                                "lang_tag": "roomba_offline",
+                                "text": "_DEVICE_NAME_ is offline"
+                            }
+                        }
+          ],
+          "name": "PingStatus",
           "comparisson": "=",
           "prefix": {
                         "lang_tag": "which_mode",
