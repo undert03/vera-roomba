@@ -1,10 +1,8 @@
-Vera Roomba Plugin Version 1.4.2
+Vera Roomba Plugin Version 1.4.3
 ===========
 ![Roomba RooWifi Vera Plugin](https://dl.dropboxusercontent.com/u/617004/Roomba/APPICON_LG.png "Roomba RooWifi Vera Plugin")
 
 Plugin Programmed by undertoe@chemlab.org
-Concept based on nitehawk
-
 
 Plugin Features
 -----------
@@ -34,15 +32,15 @@ http://apps.mios.com/plugin.php?id=6756
 Installation - Manual from GitHub
 -----------
 
-- Extract your the Vera Roomba zip file you downloaded from 
+- Extract your the Vera Roowifi Roomba zip file you downloaded from here 
 
 - Uploads contents of icons folder to: /www/cmh/skins/default/icons (using WinSCP)
 
 - Uploads contents of libs folder to: /usr/lib/lua (using WinSCP)
 
 - Navigate to apps --> develop apps --> Luup files in vera UI
-Add all 4 files under the luup files folder you extracted from the zip
-check restart luup after upload
+
+- Add all 4 files under the luup files folder you extracted from the zip *check restart luup after upload
 
 - Reload Vera
 
@@ -69,3 +67,9 @@ Screenshots
 ![Roomba RooWifi Vera Plugin - Different States](https://dl.dropboxusercontent.com/u/617004/Roomba/Screenshot-2.jpg "Roomba RooWifi Vera Plugin - Different States")
 
 ![Roomba RooWifi Vera Plugin - Advance Tab](https://dl.dropboxusercontent.com/u/617004/Roomba/Screenshot-1.jpg "Roomba RooWifi Vera Plugin - Advance Tab")
+
+
+Credit
+-----------
+
+concept based on nitehawk original work.

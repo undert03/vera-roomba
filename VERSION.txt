@@ -1,6 +1,6 @@
 Revisions
 
-1.4.3 Beta - Added Multiple Icon support. Icons for the following
+1.4.3 - Added Multiple Icon support. Icons for the following
 	(Docking, Undocking, Charging, Trickle Charging, Charging Error, Paused, Cleaning)
 
 1.4.2 -	Improved Ping device dection
