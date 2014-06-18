@@ -68,6 +68,7 @@ Screenshots
 
 ![Roomba RooWifi Vera Plugin - Advance Tab](https://dl.dropboxusercontent.com/u/617004/Roomba/Screenshot-1.jpg "Roomba RooWifi Vera Plugin - Advance Tab")
 
+![Roomba RooWifi Vera Plugin - Scene Triggers](https://dl.dropboxusercontent.com/u/617004/Roomba/Roomba-Triggers.jpg "Roomba RooWifi Vera Plugin - Scene Triggers")
 
 Credit
 -----------
