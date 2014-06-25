@@ -68,7 +68,8 @@ Configuration for Scheduled Cleaning
 
 - Create your Scene where you set the desired Roomba to Clean
 - Click the LUUP tab
-- Past the following luup.variable_set("urn:undertoe-us:serviceId:Roomba1", "ScheduledClean", 1, YOUR_ROOMBA_DEVICE_ID )
+- Paste the following 
+luup.variable_set("urn:undertoe-us:serviceId:Roomba1", "ScheduledClean", 1, YOUR_ROOMBA_DEVICE_ID )
 
 * YOUR_ROOMBA_DEVICE_ID can be found by clicking on the Settings (Wrench Icon) of your device, then the advance tab. Where it says "Device #111" 111 would be your device id.
 
