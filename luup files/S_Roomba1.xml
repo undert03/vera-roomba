@@ -89,6 +89,11 @@
       <dataType>string</dataType>
       <shortCode>pingstatus</shortCode>
     </stateVariable>
+    <stateVariable sendEvents="yes">
+      <name>ScheduledCleanStatus</name>
+      <dataType>string</dataType>
+      <shortCode>scheduledstatus</shortCode>
+    </stateVariable>
 	<stateVariable>
        <sendEventsAttribute>no</sendEventsAttribute>
        <name>Address</name>
