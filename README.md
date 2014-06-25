@@ -1,4 +1,4 @@
-Vera Roomba Plugin Version 1.4.3
+Vera Roomba Plugin Version 1.4.4
 ===========
 ![Roomba RooWifi Vera Plugin](https://dl.dropboxusercontent.com/u/617004/Roomba/APPICON_LG.png "Roomba RooWifi Vera Plugin")
 
@@ -9,9 +9,11 @@ Plugin Features
 
 - Clean/Pause and Dock button
 - Roomba battery status
-- improved Roomba availability (ping)
+- Improved Roomba availability (ping)
 - Username & Password Support
 - Realtime Device Status with UI label
+- Device Status Triggers
+- Schedule Cleaning Mode for Trigger Alerts
 - Multiple Icons for all different levels of status
 - True Dock support
 
@@ -60,6 +62,22 @@ Password: your Roowifi password (default: roombawifi)
 If you have no password make both the Username and Password field blank
 
 Save and Reload Vera (sometimes multiple reloads necessary)	typically twice for status messages to clean and sync
+
+Configuration for Scheduled Cleaning
+-----------
+
+- Create your Scene where you set the desired Roomba to Clean
+- Click the LUUP tab
+- Past the following luup.variable_set("urn:undertoe-us:serviceId:Roomba1", "ScheduledClean", 1, YOUR_ROOMBA_DEVICE_ID )
+
+* YOUR_ROOMBA_DEVICE_ID can be found by clicking on the Settings (Wrench Icon) of your device, then the advance tab. Where it says "Device #111" 111 would be your device id.
+
+There are trigger options now for schedule cleaning ( Started, Completed, Interrupted, Failed) that are now active when you
+start your scenes with the above method. So you can now be alerted if your Roomba actually completed after you scheduled a clean.
+
+Also useful for shutting down your HVAC fan during cleaning if you want to prevent dust from getting kicked up and circulated through your
+house.
+
 
 Screenshots
 -----------

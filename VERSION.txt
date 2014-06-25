@@ -1,5 +1,8 @@
 Revisions
 
+1.4.4 - Added Schedule Cleaning mode and triggers
+				Added Device status trigger events
+
 1.4.3 - Added Multiple Icon support. Icons for the following
 	(Docking, Undocking, Charging, Trickle Charging, Charging Error, Paused, Cleaning)
 

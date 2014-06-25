@@ -302,6 +302,57 @@
           "suffix": {}
         }
       ]
+    },
+    {
+      "id": 4,
+      "label": {
+                "lang_tag": "roomba_schedule",
+                "text": "The Roomba's Schedule"
+            },
+      "serviceId": "urn:undertoe-us:serviceId:Roomba1",
+      "argumentList": [
+        {
+          "id": 4,
+          "dataType": "string",
+          "allowedValueList": [
+                        {
+                            "Started": "Started",
+                            "HumanFriendlyText": {
+                                "lang_tag": "roomba_s_started",
+                                "text": "Started"
+                            }
+                        },         
+                        {
+                            "Completed": "Completed",
+                            "HumanFriendlyText": {
+                                "lang_tag": "roomba_s_completed",
+                                "text": "Completed"
+                            }
+                        },
+                        {
+                            "Interupted": "Interupted",
+                            "HumanFriendlyText": {
+                                "lang_tag": "roomba_s_interupted",
+                                "text": "Interupted"
+                            }
+                        },
+                        {
+                            "Failed": "Failed",
+                            "HumanFriendlyText": {
+                                "lang_tag": "roomba_s_failed",
+                                "text": "Failed"
+                            }
+                        }
+          ],
+          "name": "ScheduledCleanStatus",
+          "comparisson": "=",
+          "prefix": {
+                        "lang_tag": "which_mode",
+                        "text": "Status is"
+                    },
+          "suffix": {}
+        }
+      ]
     }
   ],
   "DeviceType": "urn:schemas-undertoe-us:device:Roomba:1"

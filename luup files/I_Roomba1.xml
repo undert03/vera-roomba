@@ -16,60 +16,174 @@
 	local json = require("json-rw")
 	local BatteryStatus = 0
 	local OriginalPoll = 0
+	local NormalPoll = 120
 	local QuickPoll = 10
 	local PendingCMDaction = "Nothing"
 	local HTTPtimeout = 5
 	local PollLongRunning = false
 	local PollShortRunning = false
-	local Task_Handle = -1
+	local GUsername = ""
+	local GPassword = ""
+	local CmdStatusSaved = ""
+	local ScheduleCleanStarted = false
+	local ScheduleTimeoutDef = 7200
+	local ScheduleLoop = 0
+	local PingDownCount = 0
 	local DEBUG = false
 	
 	local function log(text)
 		local id = PARENT_DEVICE or "unknown"
 		luup.log("Roomba Plugin #" .. id .. " " .. text)
   end
-		
-	local function InitRoombaSettings(address)
-		if(DEBUG) then log("========= InitRoombaSettings ===========") end
-		-- Defaults
-    address = address or DEFAULT_ADDRESS
-	  
-	  luup.variable_set(ROOMBA_SID, "Address", address, parentDevice)
-	  luup.variable_set(ROOMBA_SID, "Target", "0", parentDevice)
-    luup.variable_set(ROOMBA_SID, "Status", "0", parentDevice)
-	  luup.variable_set(ROOMBA_SID, "Poll", "120", parentDevice)
-	  luup.variable_set(ROOMBA_SID, "Username", "admin", parentDevice)
-	  luup.variable_set(ROOMBA_SID, "Password", "roombawifi", parentDevice)
-	  luup.variable_set(ROOMBA_SID, "CmdStatus", "Device Setup", parentDevice)
-	  luup.variable_set(ROOMBA_SID, "SimpleStatus", "", parentDevice)
-	  	  
-	  log("Initialized variable: 'Address' = " .. address)
-	  log("Initialized variable: 'Target' = " .. Target)
-	  log("Initialized variable: 'Status' = " .. Status)
-	  log("Initialized variable: 'Poll' = " .. Poll)
-	  log("Initialized variable: 'Username and Password' = " .. Username)
-	  log("Initialized variable: 'SimpleStatus'")
-	  
-	  luup.task("Please restart Luup to initialize the plugin.", 1, "Roomba Plugin", -1)
-	  
-	  return address
-	  
+	
+	local function Roomba_GetVar( VarName, DefaultVal )
+		local Gval = luup.variable_get(ROOMBA_SID, VarName, parentDevice)
+		if ( Gval == nil ) then
+			luup.variable_set(ROOMBA_SID, VarName, DefaultVal, parentDevice)
+			Gval = DefaultVal
+		end
+		return Gval
 	end
 	
+	local function Roomba_URLauthPrefix(User, Pass)
+		local addresspre = ""
+		if ( User ~= "") then
+			addresspre = User .. ":" .. Pass .."@"
+			GUsername = User
+			GPassword = Pass
+		end
+		
+		return addresspre
+	end
+
 	local function RoombaPingStatus()
 		if(DEBUG) then log("========= RoombaPingStatus ===========") end
-		local PingStatus = luup.variable_get(ROOMBA_SID, "PingStatus", parentDevice)
-		if ( PingStatus == "down" ) then
+		
+		local PingStatus = Roomba_GetVar( "PingStatus", "down" )
+		local address = Roomba_GetVar( "Address", DEFAULT_ADDRESS )
+		local RtnStatus = false
+		
+		pingresponse = os.execute( "ping -c 1 " .. address )
+		if (pingresponse == 0) then
+			if (PingStatus == "down") then
+				CmdStatusSaved = Roomba_GetVar( "CmdStatus", "" )
+				luup.variable_set(ROOMBA_SID, "CmdStatus", CmdStatusSaved, parentDevice)
+			end
+			luup.variable_set(ROOMBA_SID, "PingStatus", "up", parentDevice)
+			RtnStatus = false
+		else
+			local CmdStatus = Roomba_GetVar( "CmdStatus", "" )
+			if ( CmdStatus ~= "IP Down") then
+				CmdStatusSaved = CmdStatus
+			end
+			luup.variable_set(ROOMBA_SID,"PingStatus","down",parentDevice)
+			luup.variable_set(ROOMBA_SID, "CmdStatus", "IP Down", parentDevice)
+			RtnStatus = true
+		end
+		
+		return RtnStatus
+	end
+
+	local function Rommba_HTTP_Command( CMD )
+		if ( RoombaPingStatus() ) then
+			log("FAILED: Rommba_HTTP_Command [".. CMD .."] IP is down")
+			return false
+		end
+		local urlstatus = luup.inet.wget("http://" .. address .. "/roomba.cgi?button=" .. CMD, HTTPtimeout, GUsername, GPassword)
+		if urlstatus ~= 0 then
+			log("FAILED: Rommba_HTTP_Command [".. CMD .."] NO Response")
+			return false
+		end
+		return true
+	end
+
+	local function Roomba_Schedule_Start()
+		local ScheduledClean 	= Roomba_GetVar( "ScheduledClean", 0 )
+		if ( (ScheduleCleanStarted ~= true) and (tonumber(ScheduledClean) == 1) ) then
+			ScheduleCleanStarted = true
+			-- Restart Schedule if already filled in
+			luup.variable_set(ROOMBA_SID, "ScheduledCleanStatus", "Nothing", parentDevice)
+			luup.variable_set(ROOMBA_SID, "ScheduledCleanStatus", "Started", parentDevice)
+			
+			-- Init the Timeout for schedule VAR ScheduleTimeout
+			local STimeOut = Roomba_GetVar( "ScheduledCleanTimeOut", ScheduleTimeoutDef )
+			luup.call_delay ("Roomba_Schedule_Timeout", tonumber(STimeOut), "")
+			ScheduleLoop = 0
 			return true
 		else
 			return false
-		end	
+		end
+	end
+
+	local function Roomba_Schedule_End( Docked, MotionStatus )
+		
+		if ( (Docked) and (MotionStatus == "Dock" ) and (ScheduleCleanStarted) ) then
+			ScheduleCleanStarted = false
+			luup.variable_set(ROOMBA_SID, "ScheduledClean", 0, parentDevice)
+			luup.variable_set(ROOMBA_SID, "ScheduledCleanStatus", "Completed", parentDevice)
+		 	return true
+		end
+		return false
+	end
+	
+	local function Roomba_Schedule_Interupted()
+		if ( ScheduleCleanStarted ) then
+			ScheduleCleanStarted = false
+			luup.variable_set(ROOMBA_SID, "ScheduledClean", 0, parentDevice)
+			luup.variable_set(ROOMBA_SID, "ScheduledCleanStatus", "Interupted", parentDevice)
+			log(" **SCHEDULED CLEAN** Event : Interupted")
+			return true
+		end
+	end
+
+	function Roomba_Schedule_Timeout()
+		log(" ========== SCHEDULE TIME OUT! =============")
+		if ( ScheduleCleanStarted ) then
+			ScheduleCleanStarted = false
+			luup.variable_set(ROOMBA_SID, "ScheduledClean", 0, parentDevice)
+			luup.variable_set(ROOMBA_SID, "ScheduledCleanStatus", "Failed", parentDevice)
+			log(" **SCHEDULED CLEAN** Event : Timed Out")
+		end
+	end
+	
+	function Roomba_Schedule_Watcher(Docked, MotionStatus)
+		if(DEBUG) then log("========= Roomba_Schedule_Watcher ===========") end
+		
+		local ScheduledClean 	= Roomba_GetVar( "ScheduledClean", 0 )
+		if (ScheduledClean == 0) then
+			return true
+		end
+		
+		if ( ScheduleCleanStarted ) then
+			if ( ScheduleLoop > 3 ) then
+				ScheduleLoop = 4
+			else
+				ScheduleLoop = ScheduleLoop + 1
+			end
+		end
+		
+		-- log("==========> Scheduled Clean [" .. ScheduledClean .. "] LOOP: [".. tostring(ScheduleLoop) .."] ===========")
+		if ( RoombaPingStatus() ) then
+			log("Can not connect: " .. address .. " Will try again later")
+			return true
+		end
+		
+		if ( Roomba_Schedule_Start() ) then
+			log(" **SCHEDULED CLEAN** Event : Started")
+			return true
+		elseif ( ScheduleLoop > 2 ) then
+			if( Roomba_Schedule_End( Docked, MotionStatus ) ) then
+				log(" **SCHEDULED CLEAN** Event : Achieved!")
+				return true
+			end
+		end
+		return false
+		
 	end
 	
 	local function RoombaShortPoll()
 		if(DEBUG) then log("========= RoombaShortPoll ===========") end
-		
-		OriginalPoll = luup.variable_get(ROOMBA_SID, "Poll", parentDevice)
+
 		luup.variable_set(ROOMBA_SID, "Poll", QuickPoll, parentDevice)
 		if( not PollShortRunning ) then
 			luup.call_delay ("GetRoombaDataShort", 1, "")
@@ -78,49 +192,28 @@
 
 	local function RoombaShortPollReset()
 		if(DEBUG) then log("========= RoombaShortPollReset ===========") end
-		
 		PendingCMDaction = "Nothing"
-		local Poll = OriginalPoll
-		OriginalPoll = 0
-		luup.variable_set(ROOMBA_SID, "Poll", Poll, parentDevice)
+		luup.variable_set(ROOMBA_SID, "Poll", NormalPoll, parentDevice)
 		return Poll
 	end
-
+		
 	local function readRoombaSettings(parentDevice)
 		if(DEBUG) then log("========= readRoombaSettings ===========") end
 		
-		local address = luup.variable_get(ROOMBA_SID, "Address", parentDevice)
-		local Poll = luup.variable_get(ROOMBA_SID, "Poll", parentDevice)
-		local addresspre = ""
-		local RUsername = luup.variable_get(ROOMBA_SID, "Username", parentDevice)
-		local RPassword = luup.variable_get(ROOMBA_SID, "Password", parentDevice)
-		local CmdStatus = luup.variable_get(ROOMBA_SID, "CmdStatus", parentDevice)
-		local SimpleStatus = luup.variable_get(ROOMBA_SID, "SimpleStatus", parentDevice)
+		local Address 				= Roomba_GetVar( "Address", DEFAULT_ADDRESS )
+		local Poll 						= Roomba_GetVar( "Poll", NormalPoll )
+		local Username 				= Roomba_GetVar( "Username", "admin")
+		local Password 				= Roomba_GetVar( "Password", "roombawifi")
+		local CmdStatus 			= Roomba_GetVar( "CmdStatus", "Device Setup")
+		local SimpleStatus 		= Roomba_GetVar( "SimpleStatus", "")
 		
-		if (address == nil) then
-			address = InitRoombaSettings(address)
-		end
+		Roomba_GetVar( "ScheduledClean", 0 )
+		Roomba_GetVar( "ScheduledCleanStatus", "Nothing" )
+		Roomba_GetVar( "ScheduledCleanTimeOut", ScheduleTimeoutDef )
 
-		if (RUsername == nil) then
-			addresspre = ""
-		else
-			addresspre = RUsername .. ":" .. RPassword .. "@"
-		end
+		Roomba_URLauthPrefix(Username, Password)		
 		
-		if ( SimpleStatus == nil) then
-			InitRoombaSettings(address)
-		end
-		
-		if (Poll == nil) then
-			InitRoombaSettings(address)
-			Poll = "120"
-		end
-
-		if (CmdStatus == nil) then
-			InitRoombaSettings(address)
-		end
-		
-		return address, Poll, addresspre	
+		return Address, Poll, addresspre	
 	end
 
 	local function RoombaUpdateBatteryLevel()
@@ -129,11 +222,11 @@
 		local PingStatus = luup.variable_get(ROOMBA_SID, "PingStatus", parentDevice)
 		if ( RoombaPingStatus() ) then
 			log("Can not connect: " .. address .. " Will try again in " .. Poll .. " seconds")
-			return true
+			return false
 		end
 
-		local JSONurl = "http://".. addresspre .. address .."/roomba.json"
-		local status, result = luup.inet.wget(JSONurl, HTTPtimeout)
+		local JSONurl = "http://".. address .."/roomba.json"
+		local status, result = luup.inet.wget(JSONurl, HTTPtimeout, GUsername, GPassword)
 		if status == 0 then
 			local data = json.decode(result)
 			local Charge = data.response.r18.value
@@ -142,10 +235,10 @@
 		 	if(DEBUG) then log("Battery Level Updated | Real:" .. BatteryStatus .. " > Rounded:" .. math.floor(BatteryStatus) ) end
 		 	luup.variable_set(HAD_SID, "BatteryLevel", math.floor(BatteryStatus), parentDevice)
 		end
+		return true
 	end
 	
 	local function RoombaRobotStatus()
-		Task_Handle = luup.task("Roomba1", 4, "Roomba", Task_Handle)
 		if(DEBUG) then log("========= RoombaRobotStatus ===========") end
 		local address, Poll, addresspre = readRoombaSettings(parentDevice)
 		
@@ -163,10 +256,9 @@
 			log("Can not connect: " .. address .. " Will try again in " .. Poll .. " seconds")
 			return true
 		end
-		-- Connect to Robot and read JSON
 		
-		local JSONurl = "http://".. addresspre .. address .."/roomba.json"
-		local status, result = luup.inet.wget(JSONurl, HTTPtimeout)
+		-- Connect to Robot and read JSON
+		local status, result = luup.inet.wget("http://".. address .."/roomba.json", HTTPtimeout, GUsername, GPassword)
 		if status == 0 then
 		
 			local data = json.decode(result)
@@ -175,7 +267,7 @@
 		 	local CliffSensor = (data.response.r4.value + data.response.r5.value)
 		 	
 		 	if(DEBUG) then log(" == Current: " .. CurrentValue .. " | Charge Status: " .. ChargeStatus .. " | Cliff : " .. CliffSensor) end
-		 	
+		 			 	
 		 	if ( CliffSensor >= 2) then
 		 		-- Robot is docked
 		 		MotionStatus = "Dock"
@@ -235,13 +327,17 @@
 					SimpleStatusTxt = "Paused"
 		 		end
 		 	end
-			
+		 	
+		 	
 			-- Set Simple Status
 			luup.variable_set(ROOMBA_SID, "SimpleStatus", SimpleStatusTxt, parentDevice)
+
+			-- Handles Start and Stopping Scheduled Clean Triggers
+			Roomba_Schedule_Watcher(Docked, MotionStatus)
 			
 			-- Handle Pending Commands
 		 	if ( PendingCMDaction == MotionStatus) then
-		 		if( DEBUG) then log("=== > PENDING CMD ACHIVED! ".. PendingCMDaction .. " Back to Normal Poll: " .. OriginalPoll ) end
+		 		if( DEBUG) then log("=== > PENDING CMD ACHIVED! ".. PendingCMDaction .. " Back to Normal Poll: " .. OriginalPoll ) end		 		
 		 		RoombaShortPollReset()
 		  else
 		 		if( DEBUG) then log(" === > PENDING CMD NO GOOD [".. MotionStatus .." != ".. PendingCMDaction .."]") end
@@ -249,7 +345,7 @@
 		 	
 		 	return Docked, MotionStatus, StatusBox, TargetLevel, StatusLevel
 		else
-			log("JSON URL fetch error: " .. JSONurl)
+			log("JSON URL fetch error")
 			return false
 		end		
 
@@ -264,7 +360,7 @@
 			luup.call_delay ("GetRoombaData", 120, "")
 			return true
 		end
-
+		
 		local Docked, MotionStatus, StatusTxt, TargetLevel, StatusLevel = RoombaRobotStatus()
 		luup.variable_set(ROOMBA_SID, "CmdStatus", StatusTxt, parentDevice)
 		
@@ -272,6 +368,7 @@
     luup.variable_set(ROOMBA_SID, "LoadLevelStatus", StatusLevel, parentDevice)
     
 		RoombaUpdateBatteryLevel()
+		
 		luup.call_delay ("GetRoombaData", tonumber(Poll), "")
 	end
 
@@ -297,29 +394,43 @@
 	function RoombaUp()
 		if(DEBUG) then log("========= RoombaUp ===========") end	
 		
-		local RtnStatus = false
-		local address, Poll = readRoombaSettings(parentDevice)
-		pingcommand = "ping -c 1 " .. address
-		pingresponse = os.execute(pingcommand)
+		local PingStatus = Roomba_GetVar( "PingStatus", "down" )
+		local address = Roomba_GetVar( "Address", DEFAULT_ADDRESS )
+
+		pingresponse = os.execute("ping -c 1 " .. address)
 		if (pingresponse == 0) then
-			
 			if (PingStatus == "down") then
-					luup.variable_set(ROOMBA_SID, "CmdStatus", "Connected", parentDevice)
+				luup.variable_set(ROOMBA_SID, "CmdStatus", CmdStatusSaved, parentDevice)
 			end
-		
 			luup.variable_set(ROOMBA_SID,"PingStatus","up",parentDevice)
 			if( DEBUG) then log("Ping reply ") end
-			RtnStatus = true
+			PingDownCount = 0
+			luup.call_delay("RoombaUp", 120, "")
+			return true
 		else
-			luup.variable_set(ROOMBA_SID,"PingStatus","down",parentDevice)
-			luup.variable_set(ROOMBA_SID, "CmdStatus", "Check IP", parentDevice)
-			log("No ping reply : " .. address )
-			RtnStatus = false
+			PingDownCount = PingDownCount + 1
+			
+			if( PingDownCount > 3 ) then
+				local CmdStatus = Roomba_GetVar( "CmdStatus", "" )
+				if ( CmdStatus ~= "IP Down") then
+					CmdStatusSaved = CmdStatus
+				end
+				luup.variable_set(ROOMBA_SID,"PingStatus","down",parentDevice)
+				luup.variable_set(ROOMBA_SID, "CmdStatus", "IP Down", parentDevice)
+			end
+			
+			log("No ping reply : " .. address .." PingDownCount : " .. tostring(PingDownCount) )
+			
+			if ( PingDownCount > 6) then
+				luup.call_delay("RoombaUp", 60, "")
+			elseif ( PingDownCount > 12 ) then
+				luup.call_delay("RoombaUp", 120, "")
+			else
+				luup.call_delay("RoombaUp", 20, "")
+			end
+			
+			return false
 		end
-		
-		PingInterval = luup.variable_get(ROOMBA_SID, "Poll", parentDevice)
-		luup.call_delay("RoombaUp", 120, "")
-		return RtnStatus
 	end
 		
 	local function RoombaClean()
@@ -330,11 +441,12 @@
 		
 		if( MotionStatus == "Clean") then
 			PendingCMDaction = "Pause"
+			Roomba_Schedule_Interupted()
 		else
 			PendingCMDaction = "Clean"
 		end
 		
-		luup.inet.wget("http://" .. addresspre .. address .. "/roomba.cgi?button=CLEAN", HTTPtimeout)
+		luup.inet.wget("http://" .. address .. "/roomba.cgi?button=CLEAN", HTTPtimeout, GUsername, GPassword)
 		RoombaShortPoll()
 	end	
 	
@@ -351,27 +463,31 @@
 		end
 		
 		if ( MotionStatus ~= "Pause") then
-			luup.inet.wget("http://" .. addresspre .. address .. "/roomba.cgi?button=CLEAN", HTTPtimeout )
+			luup.inet.wget("http://" .. address .. "/roomba.cgi?button=CLEAN", HTTPtimeout, GUsername, GPassword )
 			luup.sleep(2500)
 		end
-		luup.inet.wget("http://" .. addresspre .. address .. "/roomba.cgi?button=DOCK", HTTPtimeout )
-
+		luup.inet.wget("http://" .. address .. "/roomba.cgi?button=DOCK", HTTPtimeout, GUsername, GPassword )
+		
 		PendingCMDaction = "Dock"
-		-- luup.variable_set(ROOMBA_SID, "CmdStatus", "Docking", parentDevice)
+		Roomba_Schedule_Interupted()
+		
 		RoombaShortPoll()
 	end
 
 	function main(parentDevice)
     PARENT_DEVICE = parentDevice
 
-    log("VERSION 1.4.2 starting up..")
+    log("VERSION 1.4.4 starting up..")
 		if( DEBUG) then log("DEBUG : ENABLED!") end
 			
 	  luup.variable_set(HAD_SID, "LastUpdate", os.time(os.date('*t')), parentDevice)
     luup.variable_set(HAD_SID, "Configured", "1", parentDevice)
 	  
+	  -- TESTIN REMOVE ME
+	  luup.variable_set(ROOMBA_SID, "ScheduledClean", 0, parentDevice)
+	  
     local address = readRoombaSettings(parentDevice)
-	  local Poll = readRoombaSettings(parentDevice)
+
     if ( (address == nil) or (address == DEFAULT_ADDRESS) ) then
       if( DEBUG) then log("could not be started.") end
       luup.set_failure(true, parentDevice)
