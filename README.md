@@ -34,7 +34,7 @@ http://apps.mios.com/plugin.php?id=6756
 Installation - Manual from GitHub
 -----------
 
-- Extract your the Vera Roowifi Roomba zip file you downloaded from here 
+- Extract the Vera Roowifi Roomba zip file you downloaded from here 
 
 - Uploads contents of icons folder to: /www/cmh/skins/default/icons (using WinSCP)
 
