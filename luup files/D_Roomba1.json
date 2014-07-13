@@ -5,6 +5,7 @@
     "imgIconMax": "icons/Roomba_100.png",
     "halloIconsDir": "pics/hallo",
     "state_icons":[
+    		"Roomba_-100.png",
     		"Roomba_-75.png",
     		"Roomba_-50.png",
     		"Roomba_-25.png",
