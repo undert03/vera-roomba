@@ -10,13 +10,14 @@
   <startup>main</startup>
   <functions>
   
+  local json = require("json-rw")
+	local http = require("socket.http")
+	local mime = require("mime")
+  
   local ROOMBA_SID = "urn:undertoe-us:serviceId:Roomba1"
   local HAD_SID = "urn:micasaverde-com:serviceId:HaDevice1"	
 	local CURRENT_VERSION = "1.5"
 	local DEFAULT_ADDRESS = "Enter IP of Roowifi"
-	local json = require("json-rw")
-	local http = require("socket.http")
-	local mime = require("mime")
 	
 	local BatteryStatus = 0
 	local OriginalPoll = 0
@@ -25,6 +26,7 @@
 	local PendingCMDaction = "Nothing"
 	local HTTPtimeout = 10
 	http.TIMEOUT = HTTPtimeout
+	
 	local PollLongRunning = false
 	local PollShortRunning = false
 	local GUsername = ""
@@ -498,7 +500,7 @@
 
 	function main(parentDevice)
     PARENT_DEVICE = parentDevice
-
+		MSG_CLASS = MSG_CLASS .. '-' .. parentDevice
     log("VERSION " .. CURRENT_VERSION .. " starting up..")
     
 		Roomba_Move2SysVarsIfNeeded()
