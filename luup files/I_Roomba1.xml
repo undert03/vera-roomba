@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <implementation>
   <specVersion>
-    <major>0</major>
-    <minor>1</minor>
+    <major>1</major>
+    <minor>6</minor>
   </specVersion>
   <settings>
     <protocol>cr</protocol>
@@ -16,7 +16,7 @@
   
   local ROOMBA_SID = "urn:undertoe-us:serviceId:Roomba1"
   local HAD_SID = "urn:micasaverde-com:serviceId:HaDevice1"	
-	local CURRENT_VERSION = "1.5"
+	local CURRENT_VERSION = "1.6"
 	local DEFAULT_ADDRESS = "Enter IP of Roowifi"
 	
 	local BatteryStatus = 0
@@ -420,12 +420,10 @@
 			log("HTTP Ping Not Responding")
 		end
 		
-		pingresponse = os.execute("ping -c 2 " .. address)
+		pingresponse = os.execute("ping -c 1 " .. address)
 		
 		if ( pingresponse == 0 ) then
-			if ( luup.variable_get(ROOMBA_SID, "PingStatus", parentDevice) == "down" ) then
-				task_clear()
-			end
+			task_clear()
 			Roomba_UpdateVar( "PingStatus", "up" )
 			if( DEBUG) then log("Ping reply ") end
 			PingDownCount = 0
@@ -534,7 +532,7 @@
       
 	 	luup.call_delay ("GetRoombaData", 1, "")
 	  luup.call_delay("RoombaUp", 1, "")
-
+	  		
     return true
   end
 
