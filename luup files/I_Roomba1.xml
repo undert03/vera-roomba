@@ -16,7 +16,7 @@
   
   local ROOMBA_SID = "urn:undertoe-us:serviceId:Roomba1"
   local HAD_SID = "urn:micasaverde-com:serviceId:HaDevice1"	
-	local CURRENT_VERSION = "1.6"
+	local CURRENT_VERSION = "1.7"
 	local DEFAULT_ADDRESS = "Enter IP of Roowifi"
 	
 	local BatteryStatus = 0
@@ -386,6 +386,8 @@
     Roomba_UpdateVar( "CmdStatus", StatusTxt )
     Roomba_UpdateVar( "LoadlevelTarget", TargetLevel )
     Roomba_UpdateVar( "LoadLevelStatus", StatusLevel )
+
+		Roomba_GetVar( "800dblstart", 0 )
         		
 		luup.call_delay ("GetRoombaData", tonumber(Poll), "")
 	end
@@ -454,12 +456,18 @@
 			return false
 		end
 	end
+	
+	local function Roomba_Issue( Cmd )
+		local address, Poll, addresspre = readRoombaSettings(parentDevice)
+		luup.inet.wget("http://" .. address .. "/roomba.cgi?button=".. Cmd , HTTPtimeout, GUsername, GPassword)
+	end
 		
 	local function RoombaClean()
 		if( DEBUG) then log(" ====== RoombaClean ===========") end
 		
 		local address, Poll, addresspre = readRoombaSettings(parentDevice)
 		local Docked, MotionStatus, StatusTxt = RoombaRobotStatus()
+		local DblStart = Roomba_GetVar( "800dblstart", 0 )
 		
 		if( MotionStatus == "Clean") then
 			PendingCMDaction = "Pause"
@@ -469,6 +477,11 @@
 		end
 		
 		luup.inet.wget("http://" .. address .. "/roomba.cgi?button=CLEAN", HTTPtimeout, GUsername, GPassword)
+		if( ( tonumber(DblStart) == 1) and (PendingCMDaction == "Clean") ) then
+			if( DEBUG) then log(" ====== Double CLean Sent ===========") end
+			luup.sleep(1000)
+			luup.inet.wget("http://" .. address .. "/roomba.cgi?button=CLEAN", HTTPtimeout, GUsername, GPassword)
+		end
 		RoombaShortPoll()
 	end	
 	
